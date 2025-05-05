@@ -7,20 +7,37 @@
 
 import SwiftUI
 
-
 struct CircleImage: View {
-    var image: Image
+    var imageURL: URL
+
     var body: some View {
-        image
-            .clipShape(Circle())
-            .overlay {
-                Circle().stroke(.white, lineWidth: 4)
+        AsyncImage(url: imageURL) { phase in
+            switch phase {
+            case .empty:
+                ProgressView()
+                    .frame(width: 150, height: 150)
+            case .success(let image):
+                image
+                    .resizable()
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10).stroke(.gray, lineWidth: 3)
+                    }
+                    .shadow(radius: 7)
+                    .frame(width: 150, height: 150)
+            case .failure:
+                Image(systemName: "photo")
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(Circle())
+                    .frame(width: 150, height: 150)
+                    .foregroundColor(.gray)
+            @unknown default:
+                EmptyView()
             }
-            .shadow(radius: 7)
+        }
     }
 }
 
-
 #Preview {
-    CircleImage(image: Image("turtlerock"))
+    CircleImage(imageURL: URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png")!)
 }
